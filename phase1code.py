@@ -62,5 +62,5 @@ qachain = RetrievalQAWithSourcesChain.from_chain_type(
     retriever= retriever
 )
 
-answer=qachain.invoke("where was the author from?")
-#print(answer)
+answer=qachain.invoke("how old was the author")
+print(answer)
