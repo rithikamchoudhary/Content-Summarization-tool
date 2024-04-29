@@ -48,3 +48,19 @@ embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2"
 vectorstore = DuckDB(embedding=embedding_function)
 #storing vectors and adding our docs
 vectorstore.add_documents(docs)
+#asking llm about something in the pdf using vector similarity search 
+vectorstore.similarity_search("where was the author from")
+#print(answer)
+
+retriever = vectorstore.as_retriever(search_kwargs={"k":5})
+retriever.get_relevant_documents("where was the author from?")
+
+from langchain.chains import RetrievalQAWithSourcesChain
+
+qachain = RetrievalQAWithSourcesChain.from_chain_type(
+    llm,
+    retriever= retriever
+)
+
+answer=qachain.invoke("where was the author from?")
+#print(answer)
