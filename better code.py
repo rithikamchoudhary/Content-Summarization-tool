@@ -1,3 +1,5 @@
+cache = {}
+cache.clear()
 import os
 from langchain_community.llms import Anyscale
 from langchain_core.prompts import PromptTemplate
@@ -19,7 +21,7 @@ llm = Anyscale(model_name="mistralai/Mixtral-8x7B-Instruct-v0.1")
 llm_chain = prompt | llm
 
 # Load PDF document
-pdf_path = r"C:\Users\frost\Desktop\python project\KRAKAUER JON - INTO THIN AIR.pdf"
+pdf_path = r"C:\Users\frost\Desktop\python project\thebook.pdf"
 loader = PyPDFLoader(pdf_path)
 pages = loader.load()
 

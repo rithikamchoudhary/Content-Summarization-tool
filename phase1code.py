@@ -22,7 +22,7 @@ result=llm_chain.invoke({"question": question})
 #loading my pdf
 from langchain_community.document_loaders import PyPDFLoader
 
-loader = PyPDFLoader(r"C:\Users\frost\Desktop\python project\KRAKAUER JON - INTO THIN AIR.pdf")
+loader = PyPDFLoader(r"C:\Users\frost\Desktop\python project\The-Silent-Patient.pdf")
 pages = loader.load() 
 len(pages)
 #chunking the pdf 
@@ -62,5 +62,5 @@ qachain = RetrievalQAWithSourcesChain.from_chain_type(
     retriever= retriever
 )
 
-answer=qachain.invoke("how old was the author")
+answer=qachain.invoke("who was the killer")
 print(answer)

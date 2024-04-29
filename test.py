@@ -1,5 +1,4 @@
 import os
-from langchain.chains import LLMChain
 from langchain_community.llms import Anyscale
 from langchain_core.prompts import PromptTemplate
 from langchain_community.document_loaders import PyPDFLoader
@@ -20,7 +19,7 @@ llm = Anyscale(model_name="mistralai/Mixtral-8x7B-Instruct-v0.1")
 llm_chain = prompt | llm
 
 # Load PDF document
-pdf_path = r"C:\Users\frost\Desktop\python project\The-Silent-Patient.pdf"
+pdf_path = r"C:\Users\frost\Desktop\python project\road safty auidt unit 4.pdf"
 loader = PyPDFLoader(pdf_path)
 pages = loader.load()
 
@@ -28,8 +27,10 @@ pages = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(separators=["\n\n", "\n", "\t"], chunk_size=10000, chunk_overlap=3000)
 docs = text_splitter.split_documents(pages)
 
-# Vectorize text chunks and store them in DuckDB
+# Initialize Sentence Transformer Embeddings
 embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+
+# Initialize DuckDB Vector Store
 vectorstore = DuckDB(embedding=embedding_function)
 vectorstore.add_documents(docs)
 
@@ -43,12 +44,22 @@ def ask_question(question):
     result = qachain.invoke({"question": question})
     return result
 
-# Example usage
-#question = "When was George Washington president?"
-#answer = ask_question(question)
-#print("Answer:", answer)
+# Real-time question input loop
+while True:
+    user_question = input("Enter your question (or 'quit' to exit): ")
+    if user_question.lower() == "quit":
+        break
+    else:
+        answer = ask_question(user_question)
+        print("Answer:", answer)
 
-# Ask question related to PDF content
-pdf_question = "who was the killer?"
-pdf_answer = ask_question(pdf_question)
-print("Answer from PDF:", pdf_answer)
+# Update vector store with new data
+new_pdf_path = r"C:\Users\frost\Desktop\python project\road safty auidt unit 4.pdf"
+new_loader = PyPDFLoader(new_pdf_path)
+new_pages = new_loader.load()
+
+new_text_splitter = RecursiveCharacterTextSplitter(separators=["\n\n", "\n", "\t"], chunk_size=10000, chunk_overlap=3000)
+new_docs = new_text_splitter.split_documents(new_pages)
+
+vectorstore.clear()  # Clear existing data
+vectorstore.add_documents(new_docs)  # Add new documents to the vector store
