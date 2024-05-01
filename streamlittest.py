@@ -1,3 +1,4 @@
+import streamlit as st
 import os
 from langchain_community.llms import Anyscale
 from langchain_core.prompts import PromptTemplate
@@ -10,13 +11,12 @@ from langchain.chains import RetrievalQAWithSourcesChain
 # Set API key
 os.environ["ANYSCALE_API_KEY"] = "esecret_r1u6kcke1j42yfhmt1kjdh5pv1"
 
+# Initialize Anyscale model
+llm = Anyscale(model_name="mistralai/Mixtral-8x7B-Instruct-v0.1")
+
 # Prompt template
 template = """Question: {question}\nAnswer: Let's think step by step."""
 prompt = PromptTemplate.from_template(template)
-
-# Initialize Anyscale model
-llm = Anyscale(model_name="mistralai/Mixtral-8x7B-Instruct-v0.1")
-llm_chain = prompt | llm
 
 # Load PDF document
 pdf_path = r"C:\Users\frost\Desktop\python project\road safty auidt unit 4.pdf"
@@ -44,17 +44,12 @@ def ask_question(question):
     result = qachain.invoke({"question": question})
     return result
 
-# Real-time question input loop
-while True:
-    user_question = input("Enter your question (or 'quit' to exit): ")
-    if user_question.lower() == "quit":
-        vectorstore.clear()  # Clear existing data
-        break
-    else:
+# Streamlit interface
+st.title("Content Summarization with Large Language Models")
+user_question = st.text_input("Enter your question:")
+if st.button("Summarize"):
+    if user_question:
         answer = ask_question(user_question)
-        print("Answer:", answer)
-
-
-
-
-
+        st.write("Answer:", answer)
+    else:
+        st.warning("Please enter a question.")
