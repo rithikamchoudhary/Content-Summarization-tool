@@ -10,14 +10,15 @@ from langchain_community.embeddings.sentence_transformer import SentenceTransfor
 from langchain.chains import RetrievalQAWithSourcesChain
 
 # Set API key
+os.environ["ANYSCALE_API_base"] = "https://api.endpoints.anyscale.com/v1"
 os.environ["ANYSCALE_API_KEY"] = "esecret_r1u6kcke1j42yfhmt1kjdh5pv1"
 
 # Prompt template
-template = """Question: {question}\nAnswer: Let's think step by step."""
+template = """Question: {question}\ncontext:{summaries} \nintstruction:output answer in {language}\nanswer from context.if answer not in context answer i dont know\nAnswer:"""
 prompt = PromptTemplate.from_template(template)
 
 # Initialize Anyscale model
-llm = Anyscale(model_name="mistralai/Mixtral-8x7B-Instruct-v0.1")
+llm = Anyscale(model_name="mistralai/Mixtral-8x7B-Instruct-v0.1",temperature=0,top_p=1)
 llm_chain = prompt | llm
 
 # Load PDF document
@@ -26,7 +27,7 @@ loader = PyPDFLoader(pdf_path)
 pages = loader.load()
 
 # Split PDF document into smaller chunks
-text_splitter = RecursiveCharacterTextSplitter(separators=["\n\n", "\n", "\t"], chunk_size=10000, chunk_overlap=3000)
+text_splitter = RecursiveCharacterTextSplitter(separators=["\n\n", "\n", "\t"], chunk_size=500, chunk_overlap=100)
 docs = text_splitter.split_documents(pages)
 
 # Vectorize text chunks and store them in DuckDB
@@ -34,14 +35,16 @@ embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2"
 vectorstore = DuckDB(embedding=embedding_function)
 vectorstore.add_documents(docs)
 
+
 # Retrieve relevant documents
-retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+retriever = vectorstore.as_retriever(search_kwargs={"k": 25})
+print(retriever.get_relevant_documents("what are the types of mcahine learning"))
 
 # Construct RetrievalQAWithSourcesChain
-qachain = RetrievalQAWithSourcesChain.from_chain_type(llm, retriever=retriever)
+qachain = RetrievalQAWithSourcesChain.from_chain_type(llm, retriever=retriever,chain_type_kwargs={"prompt": prompt})
 
 def ask_question(question):
-    result = qachain.invoke({"question": question})
+    result = qachain.invoke({"question": question, "language":"hindi"})
     return result
 
 # Real-time question input loop

@@ -18,7 +18,8 @@ tools = [
 ]
 
 
-agent_executor = initialize_agent(tools, llm, agent='zero-shot-react-description', verbose=True)
+agent_executor = initialize_agent(tools, llm, agent='zero-shot-react-description', verbose=
+                                  True)
 
 output = agent_executor.run("Can you please provide a quick summary of Napoleon Bonaparte? \
                           Then do a separate search and tell me what the commonalities are with Serena Williams")

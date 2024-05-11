@@ -1,5 +1,6 @@
+cache = {}
+cache.clear()
 import os
-from langchain.chains import LLMChain
 from langchain_community.llms import Anyscale
 from langchain_core.prompts import PromptTemplate
 from langchain_community.document_loaders import PyPDFLoader
@@ -20,7 +21,7 @@ llm = Anyscale(model_name="mistralai/Mixtral-8x7B-Instruct-v0.1")
 llm_chain = prompt | llm
 
 # Load PDF document
-pdf_path = r"C:\Users\frost\Desktop\python project\The-Silent-Patient.pdf"
+pdf_path = r"C:\Users\frost\Desktop\python project\thebook.pdf"
 loader = PyPDFLoader(pdf_path)
 pages = loader.load()
 
@@ -43,12 +44,11 @@ def ask_question(question):
     result = qachain.invoke({"question": question})
     return result
 
-# Example usage
-#question = "When was George Washington president?"
-#answer = ask_question(question)
-#print("Answer:", answer)
-
-# Ask question related to PDF content
-pdf_question = "who was the killer?"
-pdf_answer = ask_question(pdf_question)
-print("Answer from PDF:", pdf_answer)
+# Real-time question input loop
+while True:
+    user_question = input("Enter your question (or 'quit' to exit): ")
+    if user_question.lower() == "quit":
+        break
+    else:
+        answer = ask_question(user_question)
+        print("Answer:", answer)
